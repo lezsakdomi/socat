@@ -1,6 +1,6 @@
-# socat
+# multi-socat
 
-Run socat command in alpine container
+Run _multiple_ socat commands in alpine container
 
 [![DockerHub Badge](http://dockeri.co/image/alpine/socat)](https://hub.docker.com/r/alpine/socat/)
 
@@ -23,7 +23,7 @@ $ docker run -d --restart=always \
 
 ***WARNING***: The Docker API is unsecure by default. Please remember to bind the TCP socket to the localhost interface otherwise the Docker API will be bound to all interfaces.
 
-## Use Case: Publish a port on an existing container
+## Use Case: Publish two ports on an existing container
 
 Docker does not allow easy publishing of ports on existing containers. Changing published ports is done by destroying existing containers and creating them with changed options. Alternative solutions require firewall access, and are vulnerable to changes in the addresses of said containers between restarts.
 
@@ -31,14 +31,15 @@ This image can be used to work-around these limitations by forwarding ports and 
 
 ### Example
 
-To publish port **1234** on container **example-container** as port **4321** on the docker host:
+To publish port **80** and **443** on container **example-container** as port **8080** and **8443** on the docker host:
 ```
-$ docker pull alpine/socat
+$ docker pull lezsakdomi/socat
 $ docker run \
-    --publish 4321:1234 \
+    --publish 8080:8080 8443:8443 \
     --link example-container:target \
     alpine/socat \
-    tcp-listen:1234,fork,reuseaddr tcp-connect:target:1234
+    tcp-listen:8080,fork,reuseaddr tcp-connect:target:80 \
+    tcp-listen:8443,fork,reuseaddr tcp-connect:target:443
 ```
 * To run the container in the background insert ```--detach``` after ```docker run```.
 * To automatically start the container on restart insert ```--restart always``` after ```docker run```.
